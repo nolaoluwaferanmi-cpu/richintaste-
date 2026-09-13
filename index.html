@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rich In Taste</title>
+<!-- RIT FREE FIREBASE MODE: Firebase Storage is intentionally NOT required. Images are compressed and stored in Firestore. -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #140e0a;
+    --bg2: #1c1410;
+    --card: #1f1712;
+    --text: #f5efe6;
+    --muted: #b8a99a;
+    --gold: #c9a227;
+    --gold-soft: #d4b84a;
+    --cream: #f0e6d3;
+    --border: #3a2e24;
+    --hover: #2a211a;
+    --red: #c23b2e;
+    --red-hover: #d44a3c;
+    --wa: #25D366;
+  }
+
+  body.light {
+    --bg: #f8f4ee;
+    --bg2: #f0ebe3;
+    --card: #ffffff;
+    --text: #1a120c;
+    --muted: #6b5c4d;
+    --gold: #a8841a;
+    --gold-soft: #c9a227;
+    --cream: #3a2e24;
+    --border: #e0d6c8;
+    --hover: #f5f0e8;
+    --red: #c23b2e;
+    --red-hover: #a83226;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+    transition: background 0.35s, color 0.35s;
+  }
+  h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative;
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px 60px;
+    overflow: visible;
+    background: var(--bg);
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(20,14,10,0.55) 0%,
+      rgba(20,14,10,0.72) 45%,
+      rgba(20,14,10,0.88) 100%
+    );
+    z-index: 1;
+  }
+  body.light .hero-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(248,244,238,0.45) 0%,
+      rgba(248,244,238,0.7) 50%,
+      rgba(248,244,238,0.9) 100%
+    );
+  }
+  .hero > *:not(.hero-bg):not(.hero-overlay) {
+    position: relative;
+    z-index: 2;
+  }
+
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    z-index: 40;
+  }
+  .logo-small {
+    height: 52px;
+    width: auto;
+    max-width: 150px;
+    max-height: 52px;
+    object-fit: contain;
+    object-position: left center;
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
+  }
+  .top-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .theme-toggle {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    height: 38px;
+    width: 38px;
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: 0.2s;
+    padding: 0;
+  }
+  .theme-toggle:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .hero-label {
+    font-size: 12px;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-label::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .brand-banner-wrap {
+    width: min(420px, 88vw);
+    margin: 8px auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .brand-banner {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.35));
+    background: transparent;
+    display: block;
+  }
+  @media (min-width: 700px) {
+    .brand-banner-wrap {
+      width: min(520px, 90vw);
+    }
+  }
+
+  .hero-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(22px, 3.5vw, 32px);
+    color: var(--cream);
+    margin: 12px 0 12px;
+    font-weight: 400;
+  }
+
+  .hero-desc {
+    max-width: 420px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.65;
+    margin: 0 auto 32px;
+  }
+
+  .hero-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary:hover { background: var(--red-hover); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid var(--border);
+    padding: 13px 26px;
+    font-weight: 500;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.2s;
+    text-decoration: none;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-wa {
+    background: var(--wa);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+    text-decoration: none;
+  }
+  .btn-wa:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+  /* Marquee */
+  .marquee-wrap {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 11px 0;
+  }
+  .marquee {
+    display: inline-block;
+    animation: marquee 30s linear infinite;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Layout */
+  .container { max-width: 1100px; margin: 0 auto; padding: 20px 20px 130px; }
+
+  .section-label {
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 48px 0 8px;
+  }
+  .section-title {
+    font-size: clamp(28px, 4vw, 36px);
+    text-align: center;
+    margin-bottom: 8px;
+    color: var(--cream);
+  }
+  .section-desc {
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 480px;
+    margin: 0 auto 28px;
+  }
+
+  /* How it works */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 12px 0 20px;
+  }
+  .step-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 18px;
+    text-align: center;
+  }
+  .step-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(201,162,39,0.15);
+    color: var(--gold);
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+  }
+  .step-card h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: var(--cream);
+  }
+  .step-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* About */
+  .about-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 24px;
+    margin: 20px 0;
+    text-align: center;
+  }
+  .about-box p {
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* Delivery info */
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 16px 0 8px;
+  }
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+  }
+  .info-card .icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .info-card h4 {
+    font-size: 14px;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+  .info-card p {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Search + Filters */
+  .controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 13px 16px 13px 42px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box input:focus { border-color: var(--gold); }
+  .search-box input::placeholder { color: var(--muted); }
+  .search-box::before {
+    content: '⌕';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 17px;
+    color: var(--muted);
+  }
+  .category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cat-btn {
+    padding: 9px 18px;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.2s;
+  }
+  .cat-btn:hover, .cat-btn.active {
+    background: var(--gold);
+    color: #1a120c;
+    border-color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* Menu Grid */
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 22px;
+  }
+  .pastry-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  }
+  .pastry-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(201,162,39,0.4);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  }
+  .pastry-card .img-wrap {
+    width: 100%;
+    height: 260px;
+    background: var(--hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .pastry-card img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    /* Prevents broken/half images from some phone cameras */
+    image-rendering: auto;
+  }
+  @media (max-width: 600px) {
+    .pastry-card .img-wrap { height: 230px; }
+  }
+  .pastry-info { padding: 18px; }
+  .pastry-cat {
+    font-size: 11px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .pastry-info h3 {
+    font-size: 19px;
+    margin-bottom: 4px;
+    color: var(--cream);
+    font-weight: 600;
+  }
+  .price {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 10px 0;
+    color: var(--gold-soft);
+  }
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+  }
+  .qty-btn {
+    width: 34px; height: 34px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+  }
+  .qty-btn:hover {
+    background: var(--gold);
+    color: #1a120c;
+    border-color: var(--gold);
+  }
+  .qty { min-width: 24px; text-align: center; font-weight: 600; }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px;
+    color: var(--muted);
+  }
+
+  /* Top Buyers */
+  .buyers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: 12px;
+  }
+  .buyer-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 12px;
+    text-align: center;
+  }
+  .buyer-card .rank {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+  }
+  .buyer-card .name {
+    margin-top: 6px;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .voucher-box {
+    text-align: center;
+    margin: 36px 0 20px;
+    padding: 28px 20px;
+    background: linear-gradient(145deg, var(--card), var(--bg2));
+    border: 1px solid var(--border);
+    border-radius: 18px;
+  }
+  .voucher-box h3 { font-size: 18px; color: var(--muted); font-weight: 400; }
+  .voucher-amount {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 10px 0 6px;
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* Cart Bar */
+  .cart-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    gap: 12px;
+    backdrop-filter: blur(12px);
+  }
+  .cart-info { font-size: 15px; }
+  .cart-info strong { color: var(--gold); }
+  .cart-actions { display: flex; gap: 10px; align-items: center; }
+  .clear-cart {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .clear-cart:hover { border-color: var(--red); color: var(--red); }
+  .order-btn {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 12px 26px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.2s;
+  }
+  .order-btn:hover { background: var(--red-hover); transform: scale(1.03); }
+  .order-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Floating WhatsApp */
+  .float-wa {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: var(--wa);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(37,211,102,0.4);
+    z-index: 90;
+    transition: 0.2s;
+  }
+  .float-wa:hover { transform: scale(1.08); }
+
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,6,4,0.88);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal.active { display: flex; }
+  .modal-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 30px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-content h2 { color: var(--cream); margin-bottom: 6px; }
+  .order-summary {
+    text-align: left;
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 14px;
+    border: 1px solid var(--border);
+  }
+  .order-summary div { margin: 5px 0; }
+  .social-btns { display: grid; gap: 11px; margin-top: 18px; }
+  .social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 500;
+    color: white;
+    transition: 0.2s;
+  }
+  .social-btn.whatsapp { background: #25D366; }
+  .social-btn.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+  .social-btn.facebook { background: #1877F2; }
+  .social-btn.tiktok { background: #111; border: 1px solid #333; }
+  .social-btn:hover { transform: scale(1.03); }
+  .close-modal {
+    margin-top: 18px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+  }
+  .close-modal:hover { border-color: var(--text); color: var(--text); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--gold);
+    color: #1a120c;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 250;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Admin Login Modal */
+  .login-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,6,4,0.9);
+    z-index: 350;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .login-modal.active { display: flex; }
+  .login-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+  }
+  .login-box h2 {
+    color: var(--cream);
+    margin-bottom: 8px;
+    font-size: 24px;
+  }
+  .login-box p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 22px;
+  }
+  .login-box input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 16px;
+    margin-bottom: 12px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  .login-box input:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  .login-error {
+    color: #e8a0a0;
+    font-size: 13px;
+    margin-bottom: 12px;
+    min-height: 18px;
+  }
+  .login-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .login-actions button {
+    flex: 1;
+    padding: 13px;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+  }
+  .login-submit {
+    background: var(--gold);
+    color: #1a120c;
+  }
+  .login-cancel {
+    background: transparent;
+    border: 1px solid var(--border) !important;
+    color: var(--muted);
+  }
+
+  /* Admin */
+  .admin-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 300;
+    overflow-y: auto;
+    padding: 24px 16px 60px;
+  }
+  .admin-panel.active { display: block; }
+  .admin-form { max-width: 720px; margin: 0 auto; }
+  .admin-form h2 { text-align: center; margin-bottom: 6px; color: var(--cream); }
+  .admin-sub { text-align: center; color: var(--muted); margin-bottom: 28px; font-size: 14px; }
+  .admin-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .admin-section h3 {
+    font-size: 15px;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  .admin-form label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .admin-form input, .admin-form textarea, .admin-form select {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+  }
+  .admin-form input:focus, .admin-form textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  .admin-form textarea { min-height: 80px; resize: vertical; }
+  .admin-form input[type="file"] { padding: 10px; cursor: pointer; }
+  .img-preview {
+    max-width: 220px;
+    max-height: 140px;
+    width: auto;
+    height: auto;
+    margin-top: 8px;
+    border-radius: 8px;
+    object-fit: contain;
+    object-position: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: none;
+  }
+  .img-preview.show,
+  .img-preview[src]:not([src=""]) {
+    display: block;
+  }
+  .save-btn {
+    background: var(--gold);
+    color: #1a120c;
+    border: none;
+    padding: 15px 32px;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 12px;
+    width: 100%;
+    font-size: 15px;
+  }
+  .save-btn:hover { background: var(--gold-soft); }
+  .pastry-admin-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .pastry-admin-item .row {
+    display: grid;
+    grid-template-columns: 1fr 110px;
+    gap: 12px;
+  }
+  @media (max-width: 500px) {
+    .pastry-admin-item .row { grid-template-columns: 1fr; }
+  }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-danger {
+    background: transparent;
+    border: 1px solid #5a2222;
+    color: #e8a0a0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 12px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 16px;
+    width: 100%;
+  }
+  .export-import {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .export-import button {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .export-import button:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Tasks */
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .task-item:last-child { border-bottom: none; }
+  .task-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--gold);
+    cursor: pointer;
+  }
+  .task-item .task-text {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .task-item .task-text.done {
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+  .task-item .task-remove {
+    background: transparent;
+    border: 1px solid #5a2222;
+    color: #e8a0a0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 48px 20px 30px;
+    color: var(--muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+  footer .brand {
+    font-family: 'Playfair Display', serif;
+    color: var(--cream);
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="top">
+  <img id="heroBgImg" class="hero-bg" src="" alt="">
+  <div class="hero-overlay"></div>
+
+  <div class="top-bar">
+    <img id="logoImg" class="logo-small" src="" alt="Logo" title="Rich In Taste" onclick="secretAdminTap()">
+    <div class="top-actions">
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme" onclick="toggleTheme()">☾</button>
+    </div>
+  </div>
+
+  <div class="hero-label">Lagos & Ibadan Comfort Food</div>
+  <div class="brand-banner-wrap">
+    <img id="brandBannerImg" class="brand-banner" src="" alt="Rich In Taste">
+  </div>
+  <p class="hero-sub" id="tagline">Freshly Made. Richly Enjoyed.</p>
+  <p class="hero-desc" id="heroDesc">
+    The golden, generous kind of good. Handmade Nigerian pastries, loaded rolls, towering burgers and pizza worth gathering around.
+  </p>
+  <div class="hero-btns">
+    <a class="btn-wa" id="heroWhatsapp" href="#" target="_blank">💬 Order on WhatsApp</a>
+    <a class="btn-outline" href="#menu">See the menu ↓</a>
+  </div>
+</section>
+
+<!-- Moving Notice -->
+<div class="marquee-wrap">
+  <div class="marquee" id="noticeText">Freshly baked with love every morning • Order now and taste the difference • Free voucher for Top Buyers this week!</div>
+</div>
+
+<div class="container">
+
+  <!-- How to order -->
+  <p class="section-label">Simple Process</p>
+  <h2 class="section-title">How to Order</h2>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h4>Browse the menu</h4>
+      <p>Pick your favourite pastries and set the quantity you want.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h4>Place your order</h4>
+      <p>Tap Place Order and send your cart straight to WhatsApp.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h4>We bake & deliver</h4>
+      <p>We confirm, bake fresh, and get it to you the same day.</p>
+    </div>
+  </div>
+
+  <!-- About -->
+  <div class="about-box">
+    <p class="section-label" style="margin-top:0">Our Story</p>
+    <h2 class="section-title" style="margin-bottom:14px">Made with love</h2>
+    <p id="aboutText">
+      Every morning we prepare comfort food the way it should taste — generous, golden, and made with care.
+      From Lagos to Ibadan, Rich In Taste brings people together around real flavour.
+    </p>
+  </div>
+
+  <!-- Delivery / Info -->
+  <div class="info-row">
+    <div class="info-card">
+      <div class="icon">🚚</div>
+      <h4>Same-day delivery</h4>
+      <p>Order before 2pm for same-day delivery in town</p>
+    </div>
+    <div class="info-card">
+      <div class="icon">🥐</div>
+      <h4>Freshly baked</h4>
+      <p>Made in small batches every morning</p>
+    </div>
+    <div class="info-card">
+      <div class="icon">💳</div>
+      <h4>Easy payment</h4>
+      <p>Pay on delivery or transfer after confirmation</p>
+    </div>
+  </div>
+
+  <!-- Menu -->
+  <p class="section-label" id="menu">Our Menu</p>
+  <h2 class="section-title">Sweet Selection</h2>
+  <p class="section-desc">Choose your favourites. Build your order and send it straight to us on WhatsApp.</p>
+
+  <div class="controls-bar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search pastries..." oninput="applyFilters()">
+    </div>
+    <div class="category-pills" id="categoryPills"></div>
+  </div>
+
+  <div class="menu-grid" id="menuGrid"></div>
+
+  <!-- Kitchen Tasks (visible to customers) -->
+  <p class="section-label">From the Kitchen</p>
+  <h2 class="section-title">Today’s Tasks</h2>
+  <p class="section-desc">What we’re focusing on today — updated by the team.</p>
+  <div class="about-box" id="publicTasksBox" style="text-align:left; max-width:560px; margin:0 auto 28px;">
+    <div id="publicTasksList"></div>
+  </div>
+
+  <!-- Top Buyers -->
+  <p class="section-label">This Week</p>
+  <h2 class="section-title">Top 5 Best Buyers</h2>
+  <div class="buyers" id="buyersList"></div>
+
+  <div class="voucher-box">
+    <h3>This Week’s Prize</h3>
+    <div class="voucher-amount" id="voucherText">₦5,000 Voucher</div>
+    <p style="color: var(--muted); font-size: 14px;">Awarded to the #1 buyer every Sunday</p>
+  </div>
+</div>
+
+<footer>
+  <div class="brand">Rich In Taste</div>
+  Made with love<br>
+  <span style="font-size: 12px; opacity: 0.7;">All rights reserved</span>
+</footer>
+
+<!-- Floating WhatsApp -->
+<a class="float-wa" id="floatWa" href="#" target="_blank" title="Chat on WhatsApp">💬</a>
+
+<!-- Cart Bar -->
+<div class="cart-bar">
+  <div class="cart-info">
+    <span id="cartCount">0</span> items • Total: <strong>₦<span id="cartTotal">0</span></strong>
+  </div>
+  <div class="cart-actions">
+    <button class="clear-cart" id="clearCartBtn" onclick="clearCart()" style="display:none;">Clear</button>
+    <button class="order-btn" id="orderBtn" disabled onclick="openOrderModal()">Place Order</button>
+  </div>
+</div>
+
+<!-- Order Modal -->
+<div class="modal" id="orderModal">
+  <div class="modal-content">
+    <h2>Complete Your Order</h2>
+    <div class="order-summary" id="orderSummary"></div>
+    <p style="color: var(--muted); font-size: 14px;">Choose your preferred platform:</p>
+    <div class="social-btns" id="socialBtns"></div>
+    <button class="close-modal" onclick="closeOrderModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Admin Login Modal -->
+<div class="login-modal" id="loginModal">
+  <div class="login-box">
+    <h2>Admin Login</h2>
+    <p>Sign in with your Firebase admin email &amp; password</p>
+    <input type="email" id="loginEmail" placeholder="Email" autocomplete="username"
+           style="margin-bottom:10px;">
+    <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter') submitAdminLogin()">
+    <div class="login-error" id="loginError"></div>
+    <div class="login-actions">
+      <button class="login-cancel" onclick="closeLoginModal()">Cancel</button>
+      <button class="login-submit" onclick="submitAdminLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-form">
+    <h2>Admin Dashboard</h2>
+    <p class="admin-sub">Changes save to the cloud (Firestore). They appear on every phone automatically.</p>
+
+    <div class="admin-section">
+      <h3>Branding</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">
+        Upload any photo (phone camera, PNG, JPG, WEBP…). Images are automatically resized and compressed so they always display fully and save correctly.
+      </p>
+      <label>Logo Image (small, top left corner)</label>
+      <input type="file" id="adminLogoFile" accept="image/*" onchange="previewLogo(this)">
+      <input type="text" id="adminLogo" placeholder="Or paste image URL">
+      <img id="logoPreview" class="img-preview" alt="Logo preview">
+
+      <label>Brand Banner (big image in the center of the entry — replace the name)</label>
+      <input type="file" id="adminBannerFile" accept="image/*" onchange="previewBanner(this)">
+      <input type="text" id="adminBrandBanner" placeholder="Or paste image URL">
+      <img id="bannerPreview" class="img-preview" alt="Banner preview">
+
+      <label>Hero Background Picture (full-screen behind everything)</label>
+      <input type="file" id="adminHeroFile" accept="image/*" onchange="previewHero(this)">
+      <input type="text" id="adminHeroImage" placeholder="Or paste image URL">
+      <img id="heroPreview" class="img-preview" alt="Hero preview">
+
+      <label>Tagline</label>
+      <input type="text" id="adminTagline">
+
+      <label>Hero description</label>
+      <textarea id="adminHeroDesc" rows="2"></textarea>
+
+      <label>About text</label>
+      <textarea id="adminAbout" rows="3"></textarea>
+
+      <label>Moving Notice Text</label>
+      <textarea id="adminNotice"></textarea>
+    </div>
+
+    <div class="admin-section">
+      <h3>Contact & Social Links</h3>
+      <label>WhatsApp Number (country code, no +)</label>
+      <input type="text" id="adminWhatsapp" placeholder="2348012345678">
+      <label>Instagram URL</label>
+      <input type="text" id="adminInstagram">
+      <label>Facebook URL</label>
+      <input type="text" id="adminFacebook">
+      <label>TikTok URL</label>
+      <input type="text" id="adminTiktok">
+    </div>
+
+    <div class="admin-section">
+      <h3>Weekly Prize & Top Buyers</h3>
+      <label>Voucher / Prize Text</label>
+      <input type="text" id="adminVoucher">
+      <label>Top 5 Buyers (one name per line)</label>
+      <textarea id="adminBuyers" rows="5"></textarea>
+    </div>
+
+    <div class="admin-section">
+      <h3>Admin Account</h3>
+      <p style="font-size:13px;color:var(--muted);">
+        Password is managed by Firebase Authentication. To change it, go to Firebase Console → Authentication → Users.
+      </p>
+    </div>
+
+    <div class="admin-section">
+      <h3>Pastries Menu (prices in ₦)</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">
+        Upload any size or type of photo for each pastry — it will be auto-resized so the full image shows cleanly on the menu.
+      </p>
+      <div id="adminPastries"></div>
+      <button class="btn-secondary" onclick="addPastryField()">+ Add Pastry</button>
+    </div>
+
+    <div class="admin-section">
+      <h3>Daily Tasks</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">
+        Checklist for you / the kitchen. Tick items as you complete them.
+      </p>
+      <div id="adminTasks"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <input type="text" id="newTaskText" placeholder="New task..." style="flex:1;">
+        <button class="btn-secondary" onclick="addTask()" style="margin-top:0;">+ Add</button>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <h3>Backup & Restore</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">
+        Export your data as JSON to move it to another device. Later this can be replaced with cloud storage.
+      </p>
+      <div class="export-import">
+        <button onclick="exportData()">Export JSON</button>
+        <button onclick="document.getElementById('importFile').click()">Import JSON</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveAdmin()">Save All Changes</button>
+    <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+  </div>
+</div>
+
+<!-- Firebase SDK (modular) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBOKKnBfJDxGkNHInyULwuQLIfsaRU_dwE",
+    authDomain: "richintaste.firebaseapp.com",
+    projectId: "richintaste",
+    storageBucket: "richintaste.firebasestorage.app",
+    messagingSenderId: "576901948145",
+    appId: "1:576901948145:web:d76795a820082848013f50"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Expose to the rest of the page (classic script)
+  window.firebaseAuth = auth;
+  window.firebaseDb = db;
+  window.firebaseDoc = doc;
+  window.firebaseGetDoc = getDoc;
+  window.firebaseSetDoc = setDoc;
+  window.firebaseSignIn = signInWithEmailAndPassword;
+  window.firebaseSignOut = signOut;
+  window.firebaseOnAuth = onAuthStateChanged;
+  window.ADMIN_UID = "0AXbdONLBfhn7SoD8v7XJggLc6g2";
+
+  // Signal that Firebase is ready
+  window.firebaseReady = true;
+  window.dispatchEvent(new Event("firebase-ready"));
+</script>
+
+<script>
+// ========== HELPERS ==========
+function formatNaira(n) {
+  return Number(n).toLocaleString('en-NG');
+}
+
+// Turn plain URLs in text into clickable links (safe)
+function linkify(text) {
+  const escaped = String(text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+  // Match http/https URLs
+  return escaped.replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:var(--gold);text-decoration:underline;word-break:break-all;">$1</a>'
+  );
+}
+
+// ========== DEFAULT DATA (Naira) ==========
+const defaultData = {
+  logo: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=200&fit=crop",
+  heroImage: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&h=1000&fit=crop",
+  brandBanner: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&h=400&fit=crop",
+  tagline: "Freshly Made. Richly Enjoyed.",
+  heroDesc: "The golden, generous kind of good. Handmade Nigerian pastries, loaded rolls, towering burgers and pizza worth gathering around.",
+  about: "Every morning we prepare comfort food the way it should taste — generous, golden, and made with care. From Lagos to Ibadan, Rich In Taste brings people together around real flavour.",
+  notice: "Freshly made with love every morning • Order now and taste the difference • Free voucher for Top Buyers this week!",
+  whatsapp: "2348012345678",
+  instagram: "https://instagram.com/",
+  facebook: "https://facebook.com/",
+  tiktok: "https://tiktok.com/",
+  voucher: "₦5,000 Voucher",
+  buyers: ["Amara K.", "David O.", "Fatima S.", "James T.", "Ngozi E."],
+  pastries: [
+    { name: "Classic Croissant", price: 1800, category: "Classic", img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=300&fit=crop" },
+    { name: "Chocolate Éclair", price: 2200, category: "Chocolate", img: "https://images.unsplash.com/photo-1626094309830-abbb0c99da4a?w=400&h=300&fit=crop" },
+    { name: "Strawberry Tart", price: 2800, category: "Fruit", img: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=400&h=300&fit=crop" },
+    { name: "Cinnamon Roll", price: 1500, category: "Classic", img: "https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=400&h=300&fit=crop" },
+    { name: "Lemon Danish", price: 2000, category: "Classic", img: "https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=400&h=300&fit=crop" },
+    { name: "Berry Cheesecake Slice", price: 3200, category: "Fruit", img: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop" },
+    { name: "Dark Chocolate Mousse", price: 2500, category: "Chocolate", img: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&h=300&fit=crop" },
+    { name: "Almond Croissant", price: 2200, category: "Classic", img: "https://images.unsplash.com/photo-1623334044303-241021148842?w=400&h=300&fit=crop" }
+  ],
+  password: "pastry2026",
+  theme: "dark",
+  tasks: [
+    { text: "Reply to new WhatsApp orders", done: false },
+    { text: "Update today's specials", done: false },
+    { text: "Post new photos on Instagram", done: false }
+  ]
+};
+
+let data = JSON.parse(localStorage.getItem("pastryData")) || structuredClone(defaultData);
+data.pastries = data.pastries.map(p => ({ category: "Classic", ...p }));
+if (!data.theme) data.theme = "dark";
+if (!data.heroDesc) data.heroDesc = defaultData.heroDesc;
+if (!data.about) data.about = defaultData.about;
+if (!data.heroImage) data.heroImage = defaultData.heroImage;
+if (!data.brandBanner) data.brandBanner = defaultData.brandBanner;
+if (!Array.isArray(data.tasks)) data.tasks = structuredClone(defaultData.tasks);
+
+// One-time migration: if prices look like old USD values (< 100), scale them to Naira-ish
+if (data.pastries.length && data.pastries[0].price < 100) {
+  data.pastries.forEach(p => { p.price = Math.round(p.price * 400); });
+  if (data.voucher && data.voucher.includes('$')) data.voucher = "₦5,000 Voucher";
+  localStorage.setItem("pastryData", JSON.stringify(data));
+}
+
+let cart = {};
+let activeCategory = "All";
+
+// ========== THEME ==========
+function applyTheme() {
+  if (data.theme === "light") {
+    document.body.classList.add("light");
+    document.getElementById("themeToggle").textContent = "☀";
+  } else {
+    document.body.classList.remove("light");
+    document.getElementById("themeToggle").textContent = "☾";
+  }
+}
+function toggleTheme() {
+  data.theme = data.theme === "dark" ? "light" : "dark";
+  localStorage.setItem("pastryData", JSON.stringify(data));
+  applyTheme();
+}
+
+// ========== TOAST ==========
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+// ========== RENDER ==========
+function getCategories() {
+  const cats = new Set(data.pastries.map(p => p.category || "Other"));
+  return ["All", ...Array.from(cats).sort()];
+}
+
+function renderCategories() {
+  const pills = document.getElementById("categoryPills");
+  pills.innerHTML = "";
+  getCategories().forEach(cat => {
+    const btn = document.createElement("button");
+    btn.className = "cat-btn" + (cat === activeCategory ? " active" : "");
+    btn.textContent = cat;
+    btn.onclick = () => {
+      activeCategory = cat;
+      renderCategories();
+      applyFilters();
+    };
+    pills.appendChild(btn);
+  });
+}
+
+function applyFilters() {
+  const query = document.getElementById("searchInput").value.toLowerCase().trim();
+  const grid = document.getElementById("menuGrid");
+  grid.innerHTML = "";
+
+  const filtered = data.pastries.filter(p => {
+    const matchCat = activeCategory === "All" || (p.category || "Other") === activeCategory;
+    const matchSearch = !query || p.name.toLowerCase().includes(query);
+    return matchCat && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state">No pastries match your search.</div>`;
+    return;
+  }
+
+  filtered.forEach(p => {
+    const realIndex = data.pastries.indexOf(p);
+    const qty = cart[realIndex] || 0;
+    const card = document.createElement("div");
+    card.className = "pastry-card";
+    card.innerHTML = `
+      <div class="img-wrap">
+        <img src="${p.img || ''}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400x300/2a211a/c9a227?text=Pastry'">
+      </div>
+      <div class="pastry-info">
+        <div class="pastry-cat">${p.category || "Classic"}</div>
+        <h3>${p.name}</h3>
+        <div class="price">₦${formatNaira(p.price)}</div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty(${realIndex}, -1)">−</button>
+          <span class="qty">${qty}</span>
+          <button class="qty-btn" onclick="changeQty(${realIndex}, 1)">+</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function render() {
+  document.getElementById("logoImg").src = data.logo || defaultData.logo;
+  document.getElementById("heroBgImg").src = data.heroImage || defaultData.heroImage;
+  document.getElementById("brandBannerImg").src = data.brandBanner || defaultData.brandBanner;
+  document.getElementById("tagline").textContent = data.tagline;
+  document.getElementById("heroDesc").textContent = data.heroDesc || defaultData.heroDesc;
+  document.getElementById("aboutText").textContent = data.about || defaultData.about;
+  document.getElementById("noticeText").textContent = data.notice;
+  document.getElementById("voucherText").textContent = data.voucher;
+
+  const waMsg = encodeURIComponent("Hello! I would like to order from Rich In Taste.");
+  const waLink = `https://wa.me/${data.whatsapp}?text=${waMsg}`;
+  document.getElementById("heroWhatsapp").href = waLink;
+  document.getElementById("floatWa").href = waLink;
+
+  const buyersEl = document.getElementById("buyersList");
+  buyersEl.innerHTML = "";
+  (data.buyers || []).forEach((name, i) => {
+    buyersEl.innerHTML += `
+      <div class="buyer-card">
+        <div class="rank">#${i + 1}</div>
+        <div class="name">${name}</div>
+      </div>`;
+  });
+
+  // Public tasks (customer view) — links are clickable
+  const publicList = document.getElementById("publicTasksList");
+  if (publicList) {
+    const tasks = Array.isArray(data.tasks) ? data.tasks : [];
+    if (tasks.length === 0) {
+      publicList.innerHTML = '<p style="color:var(--muted);font-size:14px;text-align:center;">No tasks posted today.</p>';
+    } else {
+      publicList.innerHTML = tasks.map(t => `
+        <div class="task-item" style="border-color:var(--border);">
+          <span style="font-size:16px;line-height:1;flex-shrink:0;">${t.done ? "✅" : "🕓"}</span>
+          <span class="task-text ${t.done ? "done" : ""}" style="word-break:break-word;">${linkify(t.text)}</span>
+        </div>
+      `).join("");
+    }
+  }
+
+  renderCategories();
+  applyFilters();
+  updateCartUI();
+  applyTheme();
+}
+
+function changeQty(index, delta) {
+  cart[index] = (cart[index] || 0) + delta;
+  if (cart[index] < 0) cart[index] = 0;
+  if (cart[index] === 0) delete cart[index];
+  applyFilters();
+  updateCartUI();
+}
+
+function updateCartUI() {
+  let count = 0, total = 0;
+  for (let i in cart) {
+    count += cart[i];
+    total += cart[i] * data.pastries[i].price;
+  }
+  document.getElementById("cartCount").textContent = count;
+  document.getElementById("cartTotal").textContent = formatNaira(total);
+  document.getElementById("orderBtn").disabled = count === 0;
+  document.getElementById("clearCartBtn").style.display = count > 0 ? "inline-block" : "none";
+}
+
+function clearCart() {
+  cart = {};
+  applyFilters();
+  updateCartUI();
+  showToast("Cart cleared");
+}
+
+function openOrderModal() {
+  let message = "Hello! I would like to order from Rich In Taste:%0A%0A";
+  let total = 0;
+  let summaryHTML = "";
+
+  for (let i in cart) {
+    const p = data.pastries[i];
+    const qty = cart[i];
+    const sub = qty * p.price;
+    total += sub;
+    message += `• ${qty}x ${p.name} - ₦${formatNaira(sub)}%0A`;
+    summaryHTML += `<div>${qty}× ${p.name} — ₦${formatNaira(sub)}</div>`;
+  }
+  message += `%0ATotal: ₦${formatNaira(total)}%0A%0AThank you!`;
+  summaryHTML += `<div style="margin-top:8px;font-weight:600;border-top:1px solid var(--border);padding-top:8px;color:var(--gold);">Total: ₦${formatNaira(total)}</div>`;
+
+  document.getElementById("orderSummary").innerHTML = summaryHTML;
+
+  const btns = document.getElementById("socialBtns");
+  btns.innerHTML = `
+    <a class="social-btn whatsapp" href="https://wa.me/${data.whatsapp}?text=${message}" target="_blank">WhatsApp Order</a>
+    <a class="social-btn instagram" href="${data.instagram}" target="_blank">Instagram</a>
+    <a class="social-btn facebook" href="${data.facebook}" target="_blank">Facebook</a>
+    <a class="social-btn tiktok" href="${data.tiktok}" target="_blank">TikTok</a>
+  `;
+  document.getElementById("orderModal").classList.add("active");
+}
+
+function closeOrderModal() {
+  document.getElementById("orderModal").classList.remove("active");
+}
+
+// ========== IMAGE HELPERS ==========
+// Resize + compress any image so it always displays cleanly and fits in localStorage.
+// maxSide = longest edge in px. quality 0–1 for JPEG.
+function processImageFile(file, maxSide = 900, quality = 0.82) {
+  /*
+   * FREE FIREBASE MODE:
+   * This version does NOT use Firebase Storage.
+   * Images are resized/compressed in the browser and stored as data URLs
+   * inside the Firestore site/main document.
+   *
+   * Firestore has a 1 MiB document limit, so we deliberately keep each
+   * uploaded image small. This is suitable for a small starting menu.
+   */
+  return new Promise((resolve, reject) => {
+    if (!file) return resolve(null);
+    if (!file.type || !file.type.startsWith("image/")) {
+      reject(new Error("Please choose an image file (JPG, PNG, WEBP, etc.)"));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Could not read the image file"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Invalid or unsupported image"));
+      img.onload = () => {
+        try {
+          let { width, height } = img;
+          if (!width || !height) {
+            reject(new Error("Image has invalid dimensions"));
+            return;
+          }
+
+          const scale = Math.min(1, maxSide / Math.max(width, height));
+          const w = Math.max(1, Math.round(width * scale));
+          const h = Math.max(1, Math.round(height * scale));
+
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d", { alpha: false });
+          if (!ctx) throw new Error("Your browser could not prepare the image");
+
+          // Keep a clean background for transparent images.
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+
+          // Keep small PNG logos when possible; use JPEG for food/photos.
+          let dataUrl;
+          const keepPng = file.type === "image/png" && maxSide <= 400;
+
+          if (keepPng) {
+            dataUrl = canvas.toDataURL("image/png");
+          } else {
+            // Iteratively compress so the image remains small enough for
+            // Firestore. Target is about 120 KB per image.
+            const targetBytes = 120 * 1024;
+            let q = Math.min(quality, 0.82);
+            dataUrl = canvas.toDataURL("image/jpeg", q);
+
+            while (dataUrl.length * 0.75 > targetBytes && q > 0.42) {
+              q -= 0.07;
+              dataUrl = canvas.toDataURL("image/jpeg", q);
+            }
+
+            // If still large, scale down once more.
+            if (dataUrl.length * 0.75 > targetBytes) {
+              const smallerScale = Math.min(1, 650 / Math.max(w, h));
+              const sw = Math.max(1, Math.round(w * smallerScale));
+              const sh = Math.max(1, Math.round(h * smallerScale));
+              const smallCanvas = document.createElement("canvas");
+              smallCanvas.width = sw;
+              smallCanvas.height = sh;
+              const sctx = smallCanvas.getContext("2d", { alpha: false });
+              sctx.fillStyle = "#ffffff";
+              sctx.fillRect(0, 0, sw, sh);
+              sctx.drawImage(img, 0, 0, sw, sh);
+              dataUrl = smallCanvas.toDataURL("image/jpeg", 0.58);
+            }
+          }
+
+          // Hard safety guard: never knowingly put a huge image into Firestore.
+          if (dataUrl.length * 0.75 > 180 * 1024) {
+            reject(new Error("Image is still too large after compression. Please choose a smaller image."));
+            return;
+          }
+
+          resolve(dataUrl);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Legacy alias
+function fileToDataURL(file) {
+  return processImageFile(file, 900, 0.78);
+}
+
+function previewLogo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  processImageFile(file, 320, 0.86)
+    .then(url => {
+      document.getElementById("adminLogo").value = url;
+      const prev = document.getElementById("logoPreview");
+      prev.src = url;
+      prev.classList.add("show");
+      showToast("Logo ready — click Save All Changes");
+    })
+    .catch(err => {
+      alert(err.message || "Could not process logo image");
+      input.value = "";
+    });
+}
+
+function previewHero(input) {
+  const file = input.files[0];
+  if (!file) return;
+  processImageFile(file, 1000, 0.72)
+    .then(url => {
+      document.getElementById("adminHeroImage").value = url;
+      const prev = document.getElementById("heroPreview");
+      prev.src = url;
+      prev.classList.add("show");
+      showToast("Hero image ready — click Save All Changes");
+    })
+    .catch(err => {
+      alert(err.message || "Could not process hero image");
+      input.value = "";
+    });
+}
+
+function previewBanner(input) {
+  const file = input.files[0];
+  if (!file) return;
+  processImageFile(file, 800, 0.72)
+    .then(url => {
+      document.getElementById("adminBrandBanner").value = url;
+      const prev = document.getElementById("bannerPreview");
+      prev.src = url;
+      prev.classList.add("show");
+      showToast("Banner ready — click Save All Changes");
+    })
+    .catch(err => {
+      alert(err.message || "Could not process banner image");
+      input.value = "";
+    });
+}
+
+// ========== ADMIN ==========
+// Secret admin access: tap logo 5 times quickly, or open page with #admin
+let logoTapCount = 0;
+let logoTapTimer = null;
+function secretAdminTap() {
+  logoTapCount++;
+  clearTimeout(logoTapTimer);
+  logoTapTimer = setTimeout(() => { logoTapCount = 0; }, 1500);
+  if (logoTapCount >= 5) {
+    logoTapCount = 0;
+    openAdminLogin();
+  }
+}
+
+function openAdminLogin() {
+  document.getElementById("loginEmail").value = "";
+  document.getElementById("loginPassword").value = "";
+  document.getElementById("loginError").textContent = "";
+  document.getElementById("loginModal").classList.add("active");
+  setTimeout(() => document.getElementById("loginEmail").focus(), 100);
+}
+
+function closeLoginModal() {
+  document.getElementById("loginModal").classList.remove("active");
+}
+
+async function submitAdminLogin() {
+  const email = (document.getElementById("loginEmail").value || "").trim();
+  const pass = document.getElementById("loginPassword").value;
+  const errEl = document.getElementById("loginError");
+  errEl.textContent = "";
+
+  if (!email || !pass) {
+    errEl.textContent = "Enter email and password.";
+    return;
+  }
+  if (!window.firebaseAuth || !window.firebaseSignIn) {
+    errEl.textContent = "Firebase is still loading. Try again in a moment.";
+    return;
+  }
+
+  try {
+    errEl.textContent = "Signing in…";
+    const cred = await window.firebaseSignIn(window.firebaseAuth, email, pass);
+    if (cred.user.uid !== window.ADMIN_UID) {
+      await window.firebaseSignOut(window.firebaseAuth);
+      errEl.textContent = "This account is not authorized as admin.";
+      return;
+    }
+    closeLoginModal();
+    openAdmin();
+    showToast("Logged in as admin");
+  } catch (e) {
+    console.error(e);
+    errEl.textContent = e.code === "auth/invalid-credential" || e.code === "auth/wrong-password"
+      ? "Wrong email or password."
+      : (e.message || "Login failed");
+  }
+}
+
+function openAdmin() {
+  document.getElementById("adminLogo").value = data.logo || "";
+  document.getElementById("adminBrandBanner").value = data.brandBanner || "";
+  document.getElementById("adminHeroImage").value = data.heroImage || "";
+  document.getElementById("adminTagline").value = data.tagline || "";
+  document.getElementById("adminHeroDesc").value = data.heroDesc || "";
+  document.getElementById("adminAbout").value = data.about || "";
+  document.getElementById("adminNotice").value = data.notice || "";
+  document.getElementById("adminWhatsapp").value = data.whatsapp || "";
+  document.getElementById("adminInstagram").value = data.instagram || "";
+  document.getElementById("adminFacebook").value = data.facebook || "";
+  document.getElementById("adminTiktok").value = data.tiktok || "";
+  document.getElementById("adminVoucher").value = data.voucher || "";
+  document.getElementById("adminBuyers").value = (data.buyers || []).join("\n");
+
+
+  const prev = document.getElementById("logoPreview");
+  if (data.logo) {
+    prev.src = data.logo;
+    prev.classList.add("show");
+  } else {
+    prev.classList.remove("show");
+  }
+
+  const bprev = document.getElementById("bannerPreview");
+  if (data.brandBanner) {
+    bprev.src = data.brandBanner;
+    bprev.classList.add("show");
+  } else {
+    bprev.classList.remove("show");
+  }
+
+  const hprev = document.getElementById("heroPreview");
+  if (data.heroImage) {
+    hprev.src = data.heroImage;
+    hprev.classList.add("show");
+  } else {
+    hprev.classList.remove("show");
+  }
+
+  renderAdminPastries();
+  renderAdminTasks();
+  document.getElementById("adminPanel").classList.add("active");
+}
+
+function renderAdminTasks() {
+  const container = document.getElementById("adminTasks");
+  if (!container) return;
+  container.innerHTML = "";
+  if (!data.tasks || data.tasks.length === 0) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:13px;">No tasks yet. Add one below.</p>';
+    return;
+  }
+  data.tasks.forEach((task, i) => {
+    const row = document.createElement("div");
+    row.className = "task-item";
+    row.innerHTML = `
+      <input type="checkbox" ${task.done ? "checked" : ""} onchange="toggleTask(${i})">
+      <span class="task-text ${task.done ? "done" : ""}" style="word-break:break-word;">${linkify(task.text)}</span>
+      <button class="task-remove" onclick="removeTask(${i})">Remove</button>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function toggleTask(i) {
+  if (!data.tasks[i]) return;
+  data.tasks[i].done = !data.tasks[i].done;
+  localStorage.setItem("pastryData", JSON.stringify(data));
+  renderAdminTasks();
+  render(); // update customer view too
+}
+
+function removeTask(i) {
+  data.tasks.splice(i, 1);
+  localStorage.setItem("pastryData", JSON.stringify(data));
+  renderAdminTasks();
+  render();
+}
+
+function addTask() {
+  const input = document.getElementById("newTaskText");
+  const text = (input.value || "").trim();
+  if (!text) return;
+  if (!Array.isArray(data.tasks)) data.tasks = [];
+  data.tasks.push({ text, done: false });
+  localStorage.setItem("pastryData", JSON.stringify(data));
+  input.value = "";
+  renderAdminTasks();
+  render();
+}
+
+function renderAdminPastries() {
+  const container = document.getElementById("adminPastries");
+  container.innerHTML = "";
+  data.pastries.forEach((p, i) => {
+    const item = document.createElement("div");
+    item.className = "pastry-admin-item";
+    item.innerHTML = `
+      <div class="row">
+        <div>
+          <label>Name</label>
+          <input type="text" class="p-name" value="${p.name || ""}">
+        </div>
+        <div>
+          <label>Price (₦)</label>
+          <input type="number" step="50" class="p-price" value="${p.price || 0}">
+        </div>
+      </div>
+      <label>Category</label>
+      <input type="text" class="p-category" value="${p.category || "Classic"}" list="catSuggestions">
+      <label>Image</label>
+      <input type="file" class="p-file" accept="image/*">
+      <input type="text" class="p-img" value="${p.img || ""}" placeholder="Image URL or leave after uploading file">
+      <img class="img-preview p-preview" src="${p.img || ""}" style="${p.img ? 'display:block' : ''}" alt="">
+      <button class="btn-danger" onclick="removePastry(${i})">Remove</button>
+    `;
+    container.appendChild(item);
+
+    item.querySelector(".p-file").addEventListener("change", async function() {
+      const file = this.files[0];
+      if (!file) return;
+      try {
+        const url = await processImageFile(file, 800, 0.72);
+        if (url) {
+          item.querySelector(".p-img").value = url;
+          const prev = item.querySelector(".p-preview");
+          prev.src = url;
+          prev.style.display = "block";
+          prev.classList.add("show");
+          showToast("Pastry image ready — click Save All Changes");
+        }
+      } catch (err) {
+        alert(err.message || "Could not process image");
+        this.value = "";
+      }
+    });
+  });
+
+  let dl = document.getElementById("catSuggestions");
+  if (!dl) {
+    dl = document.createElement("datalist");
+    dl.id = "catSuggestions";
+    document.body.appendChild(dl);
+  }
+  const cats = new Set(data.pastries.map(p => p.category).filter(Boolean));
+  ["Classic", "Chocolate", "Fruit", "Seasonal", "Vegan"].forEach(c => cats.add(c));
+  dl.innerHTML = Array.from(cats).map(c => `<option value="${c}">`).join("");
+}
+
+function addPastryField() {
+  data.pastries.push({ name: "New Pastry", price: 2000, category: "Classic", img: "" });
+  renderAdminPastries();
+}
+
+function removePastry(i) {
+  if (!confirm("Remove this pastry?")) return;
+  data.pastries.splice(i, 1);
+  const newCart = {};
+  for (let k in cart) {
+    if (parseInt(k) < data.pastries.length) newCart[k] = cart[k];
+  }
+  cart = newCart;
+  renderAdminPastries();
+}
+
+async function saveAdmin() {
+  // Collect form values
+  data.logo = document.getElementById("adminLogo").value.trim() || data.logo;
+  data.brandBanner = document.getElementById("adminBrandBanner").value.trim() || data.brandBanner;
+  data.heroImage = document.getElementById("adminHeroImage").value.trim() || data.heroImage;
+  data.tagline = document.getElementById("adminTagline").value;
+  data.heroDesc = document.getElementById("adminHeroDesc").value;
+  data.about = document.getElementById("adminAbout").value;
+  data.notice = document.getElementById("adminNotice").value;
+  data.whatsapp = document.getElementById("adminWhatsapp").value.trim();
+  data.instagram = document.getElementById("adminInstagram").value.trim();
+  data.facebook = document.getElementById("adminFacebook").value.trim();
+  data.tiktok = document.getElementById("adminTiktok").value.trim();
+  data.voucher = document.getElementById("adminVoucher").value;
+  data.buyers = document.getElementById("adminBuyers").value.split("\n").map(x => x.trim()).filter(Boolean);
+
+  const names = document.querySelectorAll(".p-name");
+  const prices = document.querySelectorAll(".p-price");
+  const cats = document.querySelectorAll(".p-category");
+  const imgs = document.querySelectorAll(".p-img");
+
+  data.pastries = [];
+  names.forEach((n, i) => {
+    data.pastries.push({
+      name: n.value.trim() || "Untitled",
+      price: parseFloat(prices[i].value) || 0,
+      category: cats[i].value.trim() || "Classic",
+      img: imgs[i].value.trim()
+    });
+  });
+
+  // Always keep a local backup
+  try {
+    localStorage.setItem("pastryData", JSON.stringify(data));
+  } catch (e) {
+    console.warn("localStorage backup failed", e);
+  }
+
+  // Save to Firestore (cloud)
+  if (window.firebaseDb && window.firebaseSetDoc && window.firebaseDoc) {
+    try {
+      showToast("Saving to cloud…");
+      const payload = {
+        logo: data.logo || "",
+        brandBanner: data.brandBanner || "",
+        heroImage: data.heroImage || "",
+        tagline: data.tagline || "",
+        heroDesc: data.heroDesc || "",
+        about: data.about || "",
+        notice: data.notice || "",
+        whatsapp: data.whatsapp || "",
+        instagram: data.instagram || "",
+        facebook: data.facebook || "",
+        tiktok: data.tiktok || "",
+        voucher: data.voucher || "",
+        buyers: data.buyers || [],
+        pastries: data.pastries || [],
+        tasks: data.tasks || [],
+        theme: data.theme || "dark",
+        updatedAt: new Date().toISOString()
+      };
+      // Firestore documents are limited to 1 MiB. Check before writing so
+      // an oversized image never causes a confusing "save failed" result.
+      const payloadBytes = new Blob([JSON.stringify(payload)]).size;
+      const firestoreSafetyLimit = 900 * 1024; // leave headroom below 1 MiB
+      if (payloadBytes > firestoreSafetyLimit) {
+        throw new Error(
+          "The images are too large for the free Firestore image method. " +
+          "Please use smaller pictures or remove an unused image, then save again."
+        );
+      }
+
+      await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDb, "site", "main"), payload);
+      showToast("All changes saved to Firebase (no Storage needed)!");
+
+      render();
+      document.getElementById("adminPanel").classList.remove("active");
+    } catch (e) {
+      console.error(e);
+      alert("Cloud save failed: " + (e.message || e) + "\n\nData was still saved on this device. Check Firestore security rules.");
+    }
+  } else {
+    showToast("Saved on this device (Firebase not ready)");
+    render();
+    document.getElementById("adminPanel").classList.remove("active");
+  }
+}
+
+async function logoutAdmin() {
+  document.getElementById("adminPanel").classList.remove("active");
+  if (window.firebaseAuth && window.firebaseSignOut) {
+    try {
+      await window.firebaseSignOut(window.firebaseAuth);
+      showToast("Logged out");
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+}
+
+// ========== EXPORT / IMPORT ==========
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "rich-in-taste-backup.json";
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("Data exported");
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      if (!imported.pastries || !Array.isArray(imported.pastries)) {
+        throw new Error("Invalid data format");
+      }
+      if (!confirm("This will replace all current data. Continue?")) return;
+      data = { ...defaultData, ...imported };
+      localStorage.setItem("pastryData", JSON.stringify(data));
+      cart = {};
+      openAdmin();
+      render();
+      showToast("Data imported successfully");
+    } catch (e) {
+      alert("Failed to import: " + e.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value = "";
+}
+
+// ========== LOAD FROM FIRESTORE ==========
+async function loadFromCloud() {
+  if (!window.firebaseDb || !window.firebaseGetDoc || !window.firebaseDoc) return false;
+  try {
+    const snap = await window.firebaseGetDoc(window.firebaseDoc(window.firebaseDb, "site", "main"));
+    if (snap.exists()) {
+      const cloud = snap.data();
+      data = {
+        ...defaultData,
+        ...cloud,
+        pastries: Array.isArray(cloud.pastries) ? cloud.pastries : defaultData.pastries,
+        buyers: Array.isArray(cloud.buyers) ? cloud.buyers : defaultData.buyers,
+        tasks: Array.isArray(cloud.tasks) ? cloud.tasks : defaultData.tasks
+      };
+      // Keep a local cache
+      try { localStorage.setItem("pastryData", JSON.stringify(data)); } catch (_) {}
+      return true;
+    }
+  } catch (e) {
+    console.warn("Cloud load failed, using local data:", e.message);
+  }
+  return false;
+}
+
+async function initApp() {
+  // Wait briefly for Firebase module to finish loading
+  if (!window.firebaseReady) {
+    await new Promise(resolve => {
+      window.addEventListener("firebase-ready", resolve, { once: true });
+      setTimeout(resolve, 3000); // safety timeout
+    });
+  }
+
+  const loaded = await loadFromCloud();
+  if (loaded) {
+    console.log("Loaded data from Firestore");
+  }
+
+  render();
+
+  // If already signed in as admin, fine; otherwise #admin opens login
+  if (location.hash === "#admin" || location.hash === "#login") {
+    openAdminLogin();
+  }
+
+  // Optional: listen for auth state (keeps panel closed if signed out)
+  if (window.firebaseOnAuth && window.firebaseAuth) {
+    window.firebaseOnAuth(window.firebaseAuth, (user) => {
+      if (!user || user.uid !== window.ADMIN_UID) {
+        // not admin — ensure panel is closed
+        const panel = document.getElementById("adminPanel");
+        if (panel) panel.classList.remove("active");
+      }
+    });
+  }
+}
+
+initApp();
+</script>
+</body>
+</html>
