@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rich In Taste</title>
-<!-- RIT FREE FIREBASE MODE: Firebase Storage is intentionally NOT required. Images are compressed and stored in Firestore. -->
+<!-- RIT: Images upload to ImageKit; image URLs and site data are saved in Firestore. Firebase Storage is not used. -->
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1572,95 +1572,93 @@ function closeOrderModal() {
   document.getElementById("orderModal").classList.remove("active");
 }
 
+// ========== IMAGEKIT UPLOAD HELPERS ==========
+const RIT_IMAGEKIT_WORKER = "https://rit-imagekit-connector.nolaferanmisamuel.workers.dev";
+
+async function getImageKitAuth() {
+  const auth = window.firebaseAuth;
+  const user = auth && auth.currentUser;
+  if (!user) throw new Error("Please sign in as the administrator before uploading pictures.");
+  const idToken = await user.getIdToken();
+  const response = await fetch(RIT_IMAGEKIT_WORKER, {
+    method: "GET",
+    headers: { "Authorization": "Bearer " + idToken }
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result.error || "Could not connect to the secure image uploader.");
+  }
+  if (!result.token || !result.signature || !result.expire || !result.publicKey) {
+    throw new Error("The image uploader returned incomplete credentials.");
+  }
+  return result;
+}
+
+async function uploadBlobToImageKit(blob, fileName) {
+  const auth = await getImageKitAuth();
+  const form = new FormData();
+  form.append("file", blob, fileName || "rit-image.jpg");
+  form.append("fileName", fileName || ("rit-" + Date.now() + ".jpg"));
+  form.append("publicKey", auth.publicKey);
+  form.append("token", auth.token);
+  form.append("signature", auth.signature);
+  form.append("expire", String(auth.expire));
+
+  const response = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
+    method: "POST",
+    body: form
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.url) {
+    throw new Error(result.message || result.help || "ImageKit could not upload this picture.");
+  }
+  return result.url;
+}
+
+async function uploadDataImageIfNeeded(value, label) {
+  if (typeof value !== "string" || !value.startsWith("data:image/")) return value || "";
+  const response = await fetch(value);
+  const blob = await response.blob();
+  const ext = blob.type === "image/png" ? "png" : blob.type === "image/webp" ? "webp" : "jpg";
+  return uploadBlobToImageKit(blob, "rit-" + label + "-" + Date.now() + "." + ext);
+}
+
 // ========== IMAGE HELPERS ==========
 // Resize + compress any image so it always displays cleanly and fits in localStorage.
 // maxSide = longest edge in px. quality 0–1 for JPEG.
-function processImageFile(file, maxSide = 900, quality = 0.82) {
-  /*
-   * FREE FIREBASE MODE:
-   * This version does NOT use Firebase Storage.
-   * Images are resized/compressed in the browser and stored as data URLs
-   * inside the Firestore site/main document.
-   *
-   * Firestore has a 1 MiB document limit, so we deliberately keep each
-   * uploaded image small. This is suitable for a small starting menu.
-   */
-  return new Promise((resolve, reject) => {
-    if (!file) return resolve(null);
-    if (!file.type || !file.type.startsWith("image/")) {
-      reject(new Error("Please choose an image file (JPG, PNG, WEBP, etc.)"));
-      return;
-    }
+async function processImageFile(file, maxSide = 900, quality = 0.82) {
+  if (!file) return null;
+  if (!file.type || !file.type.startsWith("image/")) {
+    throw new Error("Please choose an image file (JPG, PNG, WEBP, etc.).");
+  }
 
+  const dataUrl = await new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error("Could not read the image file"));
+    reader.onerror = () => reject(new Error("Could not read the image file."));
     reader.onload = () => {
       const img = new Image();
-      img.onerror = () => reject(new Error("Invalid or unsupported image"));
+      img.onerror = () => reject(new Error("Invalid or unsupported image."));
       img.onload = () => {
         try {
-          let { width, height } = img;
-          if (!width || !height) {
-            reject(new Error("Image has invalid dimensions"));
-            return;
-          }
-
+          const { width, height } = img;
+          if (!width || !height) throw new Error("Image has invalid dimensions.");
           const scale = Math.min(1, maxSide / Math.max(width, height));
           const w = Math.max(1, Math.round(width * scale));
           const h = Math.max(1, Math.round(height * scale));
-
           const canvas = document.createElement("canvas");
           canvas.width = w;
           canvas.height = h;
           const ctx = canvas.getContext("2d", { alpha: false });
-          if (!ctx) throw new Error("Your browser could not prepare the image");
-
-          // Keep a clean background for transparent images.
+          if (!ctx) throw new Error("Your browser could not prepare the image.");
           ctx.fillStyle = "#ffffff";
           ctx.fillRect(0, 0, w, h);
           ctx.drawImage(img, 0, 0, w, h);
-
-          // Keep small PNG logos when possible; use JPEG for food/photos.
-          let dataUrl;
-          const keepPng = file.type === "image/png" && maxSide <= 400;
-
-          if (keepPng) {
-            dataUrl = canvas.toDataURL("image/png");
-          } else {
-            // Iteratively compress so the image remains small enough for
-            // Firestore. Target is about 120 KB per image.
-            const targetBytes = 120 * 1024;
-            let q = Math.min(quality, 0.82);
-            dataUrl = canvas.toDataURL("image/jpeg", q);
-
-            while (dataUrl.length * 0.75 > targetBytes && q > 0.42) {
-              q -= 0.07;
-              dataUrl = canvas.toDataURL("image/jpeg", q);
-            }
-
-            // If still large, scale down once more.
-            if (dataUrl.length * 0.75 > targetBytes) {
-              const smallerScale = Math.min(1, 650 / Math.max(w, h));
-              const sw = Math.max(1, Math.round(w * smallerScale));
-              const sh = Math.max(1, Math.round(h * smallerScale));
-              const smallCanvas = document.createElement("canvas");
-              smallCanvas.width = sw;
-              smallCanvas.height = sh;
-              const sctx = smallCanvas.getContext("2d", { alpha: false });
-              sctx.fillStyle = "#ffffff";
-              sctx.fillRect(0, 0, sw, sh);
-              sctx.drawImage(img, 0, 0, sw, sh);
-              dataUrl = smallCanvas.toDataURL("image/jpeg", 0.58);
-            }
-          }
-
-          // Hard safety guard: never knowingly put a huge image into Firestore.
-          if (dataUrl.length * 0.75 > 180 * 1024) {
-            reject(new Error("Image is still too large after compression. Please choose a smaller image."));
-            return;
-          }
-
-          resolve(dataUrl);
+          const jpeg = canvas.toDataURL("image/jpeg", Math.min(quality, 0.82));
+          const parts = jpeg.split(",");
+          const binary = atob(parts[1]);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          resolve(new Blob([bytes], { type: "image/jpeg" }));
         } catch (err) {
           reject(err);
         }
@@ -1669,6 +1667,10 @@ function processImageFile(file, maxSide = 900, quality = 0.82) {
     };
     reader.readAsDataURL(file);
   });
+
+  showToast("Uploading picture to ImageKit…");
+  const safeName = (file.name || "rit-image").replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 80);
+  return uploadBlobToImageKit(dataUrl, safeName || ("rit-" + Date.now() + ".jpg"));
 }
 
 // Legacy alias
@@ -1685,7 +1687,7 @@ function previewLogo(input) {
       const prev = document.getElementById("logoPreview");
       prev.src = url;
       prev.classList.add("show");
-      showToast("Logo ready — click Save All Changes");
+      showToast("Logo uploaded — click Save All Changes");
     })
     .catch(err => {
       alert(err.message || "Could not process logo image");
@@ -1702,7 +1704,7 @@ function previewHero(input) {
       const prev = document.getElementById("heroPreview");
       prev.src = url;
       prev.classList.add("show");
-      showToast("Hero image ready — click Save All Changes");
+      showToast("Hero image uploaded — click Save All Changes");
     })
     .catch(err => {
       alert(err.message || "Could not process hero image");
@@ -1719,7 +1721,7 @@ function previewBanner(input) {
       const prev = document.getElementById("bannerPreview");
       prev.src = url;
       prev.classList.add("show");
-      showToast("Banner ready — click Save All Changes");
+      showToast("Banner uploaded — click Save All Changes");
     })
     .catch(err => {
       alert(err.message || "Could not process banner image");
@@ -1917,7 +1919,7 @@ function renderAdminPastries() {
           prev.src = url;
           prev.style.display = "block";
           prev.classList.add("show");
-          showToast("Pastry image ready — click Save All Changes");
+          showToast("Pastry image uploaded — click Save All Changes");
         }
       } catch (err) {
         alert(err.message || "Could not process image");
@@ -1984,6 +1986,20 @@ async function saveAdmin() {
     });
   });
 
+  // Move any older embedded base64 images to ImageKit before saving the Firestore document.
+  try {
+    showToast("Checking pictures for cloud upload…");
+    data.logo = await uploadDataImageIfNeeded(data.logo, "logo");
+    data.brandBanner = await uploadDataImageIfNeeded(data.brandBanner, "banner");
+    data.heroImage = await uploadDataImageIfNeeded(data.heroImage, "hero");
+    for (let i = 0; i < data.pastries.length; i++) {
+      data.pastries[i].img = await uploadDataImageIfNeeded(data.pastries[i].img, "product-" + (i + 1));
+    }
+  } catch (err) {
+    alert("Picture upload failed: " + (err.message || err) + "\n\nYour existing live website has not been changed. Please check the Cloudflare Worker and try again.");
+    return;
+  }
+
   // Always keep a local backup
   try {
     localStorage.setItem("pastryData", JSON.stringify(data));
@@ -2014,15 +2030,10 @@ async function saveAdmin() {
         theme: data.theme || "dark",
         updatedAt: new Date().toISOString()
       };
-      // Firestore documents are limited to 1 MiB. Check before writing so
-      // an oversized image never causes a confusing "save failed" result.
+      // Image files are stored on ImageKit; Firestore stores only their URLs and page data.
       const payloadBytes = new Blob([JSON.stringify(payload)]).size;
-      const firestoreSafetyLimit = 900 * 1024; // leave headroom below 1 MiB
-      if (payloadBytes > firestoreSafetyLimit) {
-        throw new Error(
-          "The images are too large for the free Firestore image method. " +
-          "Please use smaller pictures or remove an unused image, then save again."
-        );
+      if (payloadBytes > 900 * 1024) {
+        throw new Error("The site data is still unusually large. Please contact support before saving again.");
       }
 
       await window.firebaseSetDoc(window.firebaseDoc(window.firebaseDb, "site", "main"), payload);
